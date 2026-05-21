@@ -1,0 +1,5 @@
+dist
+.env
+.DS_Store
+dev.log
+assets/.DS_Store
