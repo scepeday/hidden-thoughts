@@ -17,6 +17,7 @@
 html {
   min-height: 100%;
   background: #050505;
+  scroll-behavior: smooth;
 }
 
 body {
@@ -38,21 +39,128 @@ select {
 }
 
 .app-shell {
-  display: grid;
   min-height: 100vh;
-  place-items: center;
-  padding: 24px;
   background:
     radial-gradient(circle at 50% 35%, rgb(255 255 255 / 0.08), transparent 34rem),
     #050505;
 }
 
-.app-shell p {
-  max-width: 34rem;
+h1,
+h2,
+p {
   margin: 0;
+}
+
+a {
+  color: inherit;
+}
+
+.site-section {
+  display: grid;
+  min-height: 100vh;
+  place-items: center;
+  padding: clamp(48px, 10vw, 120px) 24px;
+  border-bottom: 1px solid rgb(243 240 234 / 0.12);
+}
+
+.site-section--intro {
+  min-height: 100svh;
+}
+
+.site-section--world {
+  background:
+    linear-gradient(rgb(255 255 255 / 0.03), transparent 38%),
+    #030303;
+}
+
+.site-section--credits {
+  min-height: 70vh;
+}
+
+.section-content {
+  width: min(100%, 760px);
+}
+
+.section-kicker {
+  margin-bottom: 18px;
+  color: rgb(243 240 234 / 0.58);
+  font-size: 0.78rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+h1,
+h2 {
   color: #f3f0ea;
-  font-size: clamp(1.4rem, 4vw, 3rem);
   font-weight: 400;
+  letter-spacing: 0;
+}
+
+h1 {
+  font-size: clamp(1.4rem, 4vw, 3rem);
   line-height: 1.1;
-  text-align: center;
+}
+
+h2 {
+  font-size: clamp(1.3rem, 3vw, 2.4rem);
+  line-height: 1.12;
+}
+
+.section-copy {
+  max-width: 42rem;
+  margin-top: 24px;
+  color: rgb(243 240 234 / 0.72);
+  font-size: clamp(1rem, 2vw, 1.2rem);
+  line-height: 1.7;
+}
+
+.index-list,
+.fragment-list {
+  display: grid;
+  gap: 14px;
+  margin: 32px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.index-list {
+  counter-reset: index;
+}
+
+.index-list li {
+  counter-increment: index;
+}
+
+.index-list a {
+  display: inline-flex;
+  gap: 18px;
+  color: rgb(243 240 234 / 0.78);
+  font-size: clamp(1.2rem, 3vw, 2rem);
+  text-decoration: none;
+}
+
+.index-list a::before {
+  content: counter(index, decimal-leading-zero);
+  color: rgb(243 240 234 / 0.36);
+  font-size: 0.8rem;
+  line-height: 2;
+}
+
+.fragment-list {
+  max-width: 42rem;
+  color: rgb(243 240 234 / 0.7);
+  font-size: clamp(1rem, 2vw, 1.28rem);
+  line-height: 1.55;
+}
+
+.note-panel {
+  padding: clamp(24px, 5vw, 52px);
+  border: 1px solid rgb(243 240 234 / 0.16);
+  background: rgb(255 255 255 / 0.025);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
 }

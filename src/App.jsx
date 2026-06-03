@@ -1,7 +1,17 @@
+import CreditsSection from "./sections/CreditsSection.jsx";
+import IndexSection from "./sections/IndexSection.jsx";
+import InteractiveWorldSection from "./sections/InteractiveWorldSection.jsx";
+import IntroSection from "./sections/IntroSection.jsx";
+import NotesSection from "./sections/NotesSection.jsx";
+
 export default function App() {
   return (
     <main className="app-shell">
-      <p>Hidden Thoughts</p>
+      <IntroSection />
+      <IndexSection />
+      <InteractiveWorldSection />
+      <NotesSection />
+      <CreditsSection />
     </main>
   );
 }
