@@ -34,6 +34,10 @@ select {
   font: inherit;
 }
 
+button {
+  color: inherit;
+}
+
 #root {
   min-height: 100vh;
 }
@@ -53,6 +57,81 @@ p {
 
 a {
   color: inherit;
+}
+
+.menu-control {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 20;
+  display: grid;
+  justify-items: end;
+  gap: 10px;
+}
+
+.menu-button {
+  min-width: 72px;
+  min-height: 36px;
+  padding: 0 14px;
+  border: 1px solid rgb(243 240 234 / 0.2);
+  border-radius: 0;
+  background: rgb(5 5 5 / 0.72);
+  box-shadow: 0 18px 60px rgb(0 0 0 / 0.4);
+  color: rgb(243 240 234 / 0.84);
+  cursor: pointer;
+  font-size: 0.72rem;
+  letter-spacing: 0.16em;
+  line-height: 1;
+  text-transform: uppercase;
+  backdrop-filter: blur(18px);
+}
+
+.menu-button:hover,
+.menu-button:focus-visible {
+  border-color: rgb(243 240 234 / 0.46);
+  color: #f3f0ea;
+}
+
+.menu-button:focus-visible,
+.menu-panel a:focus-visible {
+  outline: 1px solid rgb(243 240 234 / 0.72);
+  outline-offset: 4px;
+}
+
+.menu-panel {
+  width: min(180px, calc(100vw - 40px));
+  padding: 12px;
+  border: 1px solid rgb(243 240 234 / 0.16);
+  background:
+    linear-gradient(rgb(255 255 255 / 0.035), transparent),
+    rgb(5 5 5 / 0.86);
+  box-shadow: 0 26px 80px rgb(0 0 0 / 0.56);
+  backdrop-filter: blur(22px);
+}
+
+.menu-panel ul {
+  display: grid;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.menu-panel a {
+  display: flex;
+  min-height: 34px;
+  align-items: center;
+  padding: 0 8px;
+  color: rgb(243 240 234 / 0.7);
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  text-decoration: none;
+  text-transform: uppercase;
+}
+
+.menu-panel a:hover {
+  background: rgb(243 240 234 / 0.07);
+  color: #f3f0ea;
 }
 
 .site-section {
