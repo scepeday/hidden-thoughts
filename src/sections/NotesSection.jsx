@@ -5,7 +5,7 @@ export default function NotesSection() {
 
   return (
     <section id="notes" className="site-section">
-      <article className="section-content note-panel">
+      <article className="section-content note-panel texture-surface texture-surface--paper">
         <p className="section-kicker">{noteScreen.eyebrow}</p>
         <h2>{noteScreen.title}</h2>
         <p className="section-copy">{noteScreen.text}</p>

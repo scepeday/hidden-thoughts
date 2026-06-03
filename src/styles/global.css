@@ -49,7 +49,7 @@ body::after {
 }
 
 body::before {
-  opacity: 0.24;
+  opacity: 0.1;
   mix-blend-mode: screen;
   background-image:
     linear-gradient(transparent 50%, rgb(255 255 255 / 0.04) 50%),
@@ -81,6 +81,78 @@ button {
 
 #root {
   min-height: 100vh;
+}
+
+.texture-overlay,
+.texture-surface::before {
+  pointer-events: none;
+}
+
+.texture-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+}
+
+.texture-overlay--fixed {
+  position: fixed;
+  z-index: 50;
+}
+
+.site-section > .texture-overlay {
+  z-index: 1;
+}
+
+.texture-overlay--grain {
+  opacity: 0.12;
+  mix-blend-mode: screen;
+  background-image: url("../../assets/textures/grain.png");
+  background-repeat: repeat;
+  background-size: 180px 180px;
+}
+
+.texture-overlay--noise {
+  opacity: 0.1;
+  mix-blend-mode: screen;
+  background-image: url("../../assets/textures/noise.png");
+  background-repeat: repeat;
+  background-size: 260px 260px;
+}
+
+.texture-overlay--paper {
+  opacity: 0.08;
+  mix-blend-mode: screen;
+  background-image: url("../../assets/textures/paper-texture.jpg");
+  background-position: center;
+  background-size: cover;
+}
+
+.texture-surface {
+  position: relative;
+  isolation: isolate;
+}
+
+.texture-surface::before {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  content: "";
+}
+
+.texture-surface--noise::before {
+  opacity: 0.13;
+  mix-blend-mode: screen;
+  background-image: url("../../assets/textures/noise.png");
+  background-repeat: repeat;
+  background-size: 320px 320px;
+}
+
+.texture-surface--paper::before {
+  opacity: 0.09;
+  mix-blend-mode: screen;
+  background-image: url("../../assets/textures/paper-texture.jpg");
+  background-position: center;
+  background-size: cover;
 }
 
 .app-shell {
@@ -165,6 +237,7 @@ a {
 }
 
 .menu-panel {
+  position: relative;
   width: min(180px, calc(100vw - 40px));
   padding: 12px;
   border: 1px solid rgb(241 238 231 / 0.16);
@@ -236,7 +309,7 @@ a {
 .site-section--intro {
   background:
     linear-gradient(90deg, rgb(0 0 0 / 0.18), rgb(0 0 0 / 0.78)),
-    url("/assets/images/intro/intro-image.jpg") center / cover;
+    url("../../assets/intro/intro-image.jpg") center / cover;
 }
 
 .site-section--intro::before {
@@ -375,6 +448,7 @@ h2 {
 }
 
 .note-panel {
+  overflow: hidden;
   padding: clamp(24px, 5vw, 58px);
   border: 1px solid rgb(241 238 231 / 0.16);
   background:

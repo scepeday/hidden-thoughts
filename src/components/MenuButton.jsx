@@ -55,7 +55,7 @@ export default function MenuButton() {
       {isOpen && (
         <nav
           id="microsite-menu"
-          className="menu-panel"
+          className="menu-panel texture-surface texture-surface--paper"
           aria-label="Microsite navigation"
         >
           <ul>

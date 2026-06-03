@@ -8,6 +8,10 @@ import NotesSection from "./sections/NotesSection.jsx";
 export default function App() {
   return (
     <>
+      <div
+        className="texture-overlay texture-overlay--grain texture-overlay--fixed"
+        aria-hidden="true"
+      />
       <MenuButton />
       <main className="app-shell">
         <IntroSection />
