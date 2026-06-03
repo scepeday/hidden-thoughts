@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import introImage from "../../assets/intro/intro-image.jpg";
+import introImage from "../../assets/web/intro/intro-image.jpg";
 import { siteContent } from "../data/siteContent.js";
 
 export default function IntroSection() {

@@ -9,9 +9,9 @@ import collage07 from "../../assets/collage/collage-07.jpg";
 import collage08 from "../../assets/collage/collage-08.jpg";
 import collage09 from "../../assets/collage/collage-09.jpg";
 import introImage from "../../assets/intro/intro-image.jpg";
-import grainTexture from "../../assets/textures/grain.png";
-import noiseTexture from "../../assets/textures/noise.png";
-import paperTexture from "../../assets/textures/paper-texture.jpg";
+import grainTexture from "../../assets/web/textures/grain.png";
+import noiseTexture from "../../assets/web/textures/noise.png";
+import paperTexture from "../../assets/web/textures/paper-texture.jpg";
 
 export const assetsMap = {
   logo: logoWhite,
