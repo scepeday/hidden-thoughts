@@ -1,6 +1,6 @@
 export const siteContent = {
   brandName: "Hidden Thoughts",
-  headline: "Clothing for the thoughts you don't say out loud.",
+  headline: "Clothing for the thoughts you don’t say out loud.",
   shortIntro: "A space for the unspoken.",
   introText:
     "Hidden Thoughts opens like a private page: quiet images, unfinished notes, and fragments that sit close to the skin.",
