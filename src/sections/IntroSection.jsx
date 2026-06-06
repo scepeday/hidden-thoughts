@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import introImage from "../../assets/web/intro/intro-image.jpg";
+import introImage from "../assets/web/intro/intro-image.jpg";
 import { siteContent } from "../data/siteContent.js";
 
 export default function IntroSection() {
@@ -18,7 +18,7 @@ export default function IntroSection() {
         animate={{ opacity: 0.52, y: 0, scale: 1 }}
         transition={{ duration: 2.4, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
       >
-        <img src={introImage} alt="" />
+        <img src={introImage} alt="" decoding="async" />
       </motion.div>
 
       <motion.div
