@@ -1,9 +1,16 @@
 import { useEffect, useRef, useState } from "react";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { navigationItems } from "../data/navigation.js";
+import { menuPanel } from "../styles/animations.js";
 
-export default function MenuButton() {
+export default function MenuButton({
+  onReturnToWorld = () => {},
+  onOpenProducts = () => {},
+  onFocusSound = () => {},
+}) {
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef(null);
+  const shouldReduceMotion = useReducedMotion();
 
   useEffect(() => {
     if (!isOpen) {
@@ -35,7 +42,19 @@ export default function MenuButton() {
     setIsOpen((currentValue) => !currentValue);
   }
 
-  function handleInternalClick() {
+  function handleAction(action) {
+    if (action === "world") {
+      onReturnToWorld();
+    }
+
+    if (action === "products") {
+      onOpenProducts();
+    }
+
+    if (action === "sound") {
+      onFocusSound();
+    }
+
     setIsOpen(false);
   }
 
@@ -52,33 +71,40 @@ export default function MenuButton() {
         Menu
       </button>
 
-      {isOpen && (
-        <nav
-          id="microsite-menu"
-          className="menu-panel texture-surface texture-surface--paper"
-          aria-label="Microsite navigation"
-        >
-          <ul>
-            {navigationItems.map((item) => (
-              <li key={item.href}>
-                {item.external ? (
-                  <a
-                    href={item.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    {item.label}
-                  </a>
-                ) : (
-                  <a href={item.href} onClick={handleInternalClick}>
-                    {item.label}
-                  </a>
-                )}
-              </li>
-            ))}
-          </ul>
-        </nav>
-      )}
+      <AnimatePresence>
+        {isOpen && (
+          <motion.nav
+            id="microsite-menu"
+            className="menu-panel texture-surface texture-surface--paper"
+            aria-label="Microsite navigation"
+            variants={menuPanel}
+            initial={shouldReduceMotion ? false : "hidden"}
+            animate="show"
+            exit={shouldReduceMotion ? undefined : "exit"}
+          >
+            <ul>
+              {navigationItems.map((item) => (
+                <li key={item.href ?? item.action}>
+                  {item.external ? (
+                    <a
+                      href={item.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={() => setIsOpen(false)}
+                    >
+                      {item.label}
+                    </a>
+                  ) : (
+                    <button type="button" onClick={() => handleAction(item.action)}>
+                      {item.label}
+                    </button>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </motion.nav>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

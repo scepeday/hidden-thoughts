@@ -1,9 +1,10 @@
-import { Component, Suspense, useMemo, useRef, useState } from "react";
+import { Component, Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { Line, useTexture } from "@react-three/drei";
 import * as THREE from "three";
-import { motion, useInView } from "framer-motion";
+import { motion, useInView, useReducedMotion } from "framer-motion";
 import { siteContent } from "../data/siteContent.js";
+import { sectionFade, softReveal, viewportOnce } from "../styles/animations.js";
 
 const collageImageModules = import.meta.glob("../assets/web/collage/*.jpg", {
   eager: true,
@@ -12,211 +13,249 @@ const collageImageModules = import.meta.glob("../assets/web/collage/*.jpg", {
 
 const collageSources = Object.entries(collageImageModules)
   .sort(([firstPath], [secondPath]) => firstPath.localeCompare(secondPath))
-  .map(([, src]) => src);
+  .map(([, src]) => src)
+  .filter(Boolean);
+
+const WORLD_LIMITS = {
+  x: 8.4,
+  y: 5.4,
+};
+
+const CAMERA_Z = {
+  min: 3.4,
+  max: 12,
+  initial: 7.2,
+};
+
+function clampValue(value, limit) {
+  return Math.min(Math.max(value, -limit), limit);
+}
+
+function clampRange(value, min, max) {
+  return Math.min(Math.max(value, min), max);
+}
+
+function moveWorldTarget(travelRef, deltaX, deltaY) {
+  const travel = travelRef.current;
+  travel.targetX = clampValue(travel.targetX + deltaX, WORLD_LIMITS.x);
+  travel.targetY = clampValue(travel.targetY + deltaY, WORLD_LIMITS.y);
+}
+
+function zoomWorldTarget(travelRef, deltaZ) {
+  const travel = travelRef.current;
+  travel.targetZ = clampRange(travel.targetZ + deltaZ, CAMERA_Z.min, CAMERA_Z.max);
+}
 
 const collageLayouts = [
   {
-    position: [-2.9, 1.25, -1.2],
-    rotation: [0.08, 0.12, -0.08],
-    scale: [1.05, 1.55, 1],
-    opacity: 0.58,
-    speed: 0.42,
-  },
-  {
-    position: [2.45, 1.05, -1.9],
-    rotation: [-0.05, -0.18, 0.06],
-    scale: [1.75, 1.16, 1],
-    opacity: 0.54,
-    speed: 0.34,
-  },
-  {
-    position: [1.45, -1.45, -1.35],
-    rotation: [0.05, -0.1, -0.05],
-    scale: [1.45, 0.96, 1],
-    opacity: 0.5,
-    speed: 0.3,
-  },
-  {
-    position: [-2.05, -1.25, -2.1],
-    rotation: [-0.03, 0.16, 0.08],
-    scale: [1.35, 0.9, 1],
-    opacity: 0.48,
-    speed: 0.38,
-  },
-  {
-    position: [-0.35, 1.9, -2.7],
-    rotation: [0.04, -0.08, 0.12],
-    scale: [0.95, 0.64, 1],
-    opacity: 0.36,
-    speed: 0.28,
-  },
-  {
-    position: [3.15, -0.2, -2.9],
-    rotation: [-0.08, -0.22, -0.1],
-    scale: [0.82, 1.12, 1],
-    opacity: 0.34,
-    speed: 0.25,
-  },
-  {
-    position: [-3.35, -0.55, -3.1],
-    rotation: [0.12, 0.2, 0.06],
-    scale: [1.05, 0.7, 1],
-    opacity: 0.34,
-    speed: 0.22,
-  },
-  {
-    position: [0.35, -2.05, -2.7],
-    rotation: [-0.06, 0.08, -0.13],
-    scale: [0.74, 1.03, 1],
-    opacity: 0.32,
+    position: [-1.05, 0.2, -1],
+    rotation: [0.03, 0.1, -0.05],
+    size: 2.05,
+    opacity: 0.62,
     speed: 0.24,
   },
   {
-    position: [-1.3, 0.05, -3.45],
-    rotation: [0.08, -0.18, 0.04],
-    scale: [0.78, 0.52, 1],
-    opacity: 0.28,
+    position: [2.65, 1.15, -1.45],
+    rotation: [-0.04, -0.18, 0.05],
+    size: 1.48,
+    opacity: 0.52,
     speed: 0.2,
   },
   {
-    position: [1.15, 0.48, -3.65],
-    rotation: [-0.08, 0.18, -0.04],
-    scale: [0.72, 0.48, 1],
-    opacity: 0.27,
+    position: [-3.25, -1.85, -1.7],
+    rotation: [0.05, -0.12, -0.04],
+    size: 1.35,
+    opacity: 0.5,
+    speed: 0.22,
+  },
+  {
+    position: [5.15, 2.75, -2.25],
+    rotation: [-0.03, 0.14, 0.08],
+    size: 1.65,
+    opacity: 0.42,
+    speed: 0.19,
+  },
+  {
+    position: [-5.75, 2.45, -2.55],
+    rotation: [0.04, -0.1, 0.12],
+    size: 1.5,
+    opacity: 0.4,
     speed: 0.18,
   },
   {
-    position: [-2.75, 2.08, -4.1],
-    rotation: [0.08, 0.06, -0.16],
-    scale: [0.6, 0.4, 1],
-    opacity: 0.22,
+    position: [7.75, -0.85, -2.9],
+    rotation: [-0.06, -0.2, -0.1],
+    size: 1.12,
+    opacity: 0.34,
+    speed: 0.17,
+  },
+  {
+    position: [-8.25, -1.05, -3.05],
+    rotation: [0.08, 0.22, 0.06],
+    size: 1.04,
+    opacity: 0.32,
     speed: 0.16,
   },
   {
-    position: [2.75, 1.9, -4.2],
-    rotation: [-0.06, -0.08, 0.14],
-    scale: [0.58, 0.39, 1],
-    opacity: 0.22,
+    position: [0.75, 3.75, -3.2],
+    rotation: [-0.05, 0.08, -0.12],
+    size: 0.92,
+    opacity: 0.28,
     speed: 0.15,
   },
   {
-    position: [-3.65, 1.05, -4.5],
-    rotation: [0.05, 0.18, 0.2],
-    scale: [0.5, 0.68, 1],
-    opacity: 0.2,
+    position: [-1.3, -4.05, -3.35],
+    rotation: [0.06, -0.18, 0.04],
+    size: 0.94,
+    opacity: 0.28,
+    speed: 0.15,
+  },
+  {
+    position: [4.15, -3.35, -3.6],
+    rotation: [-0.07, 0.18, -0.04],
+    size: 0.88,
+    opacity: 0.25,
     speed: 0.14,
   },
   {
-    position: [3.7, -1.2, -4.4],
-    rotation: [-0.04, -0.2, -0.18],
-    scale: [0.52, 0.7, 1],
-    opacity: 0.2,
-    speed: 0.13,
-  },
-  {
-    position: [-1.95, -2.15, -4.25],
-    rotation: [-0.04, 0.12, 0.08],
-    scale: [0.56, 0.38, 1],
-    opacity: 0.2,
-    speed: 0.16,
-  },
-  {
-    position: [1.95, -2.25, -4.35],
-    rotation: [0.04, -0.12, -0.08],
-    scale: [0.56, 0.38, 1],
-    opacity: 0.19,
+    position: [-4.85, -3.8, -3.9],
+    rotation: [0.08, 0.06, -0.12],
+    size: 0.78,
+    opacity: 0.24,
     speed: 0.14,
   },
   {
-    position: [-0.05, 2.55, -4.8],
-    rotation: [0.02, 0.08, 0.02],
-    scale: [0.48, 0.32, 1],
-    opacity: 0.18,
-    speed: 0.13,
-  },
-  {
-    position: [0.05, -2.65, -4.85],
-    rotation: [-0.02, -0.08, -0.02],
-    scale: [0.48, 0.32, 1],
-    opacity: 0.18,
+    position: [9.65, 3.75, -4.25],
+    rotation: [-0.05, -0.08, 0.14],
+    size: 0.72,
+    opacity: 0.2,
     speed: 0.12,
   },
   {
-    position: [-4.05, -1.95, -5.25],
-    rotation: [0.02, 0.16, -0.12],
-    scale: [0.42, 0.28, 1],
-    opacity: 0.15,
+    position: [-10.1, 3.55, -4.35],
+    rotation: [0.05, 0.18, 0.16],
+    size: 0.72,
+    opacity: 0.2,
     speed: 0.12,
   },
   {
-    position: [4.15, 0.85, -5.25],
-    rotation: [-0.02, -0.16, 0.12],
-    scale: [0.42, 0.28, 1],
-    opacity: 0.15,
+    position: [11.25, 0.9, -4.7],
+    rotation: [-0.04, -0.18, -0.16],
+    size: 0.58,
+    opacity: 0.18,
     speed: 0.11,
   },
   {
-    position: [-2.45, 0.15, -5.6],
-    rotation: [0.05, -0.12, 0.18],
-    scale: [0.36, 0.24, 1],
-    opacity: 0.13,
+    position: [-11.45, -0.5, -4.75],
+    rotation: [-0.03, 0.14, 0.08],
+    size: 0.58,
+    opacity: 0.18,
+    speed: 0.11,
+  },
+  {
+    position: [2.5, -5.35, -4.9],
+    rotation: [0.04, -0.12, -0.08],
+    size: 0.58,
+    opacity: 0.17,
+    speed: 0.11,
+  },
+  {
+    position: [-2.35, 5.35, -5.05],
+    rotation: [0.02, 0.08, 0.02],
+    size: 0.56,
+    opacity: 0.17,
     speed: 0.1,
   },
   {
-    position: [2.35, -0.1, -5.7],
-    rotation: [-0.05, 0.12, -0.18],
-    scale: [0.36, 0.24, 1],
-    opacity: 0.13,
-    speed: 0.1,
+    position: [6.85, 5.45, -5.25],
+    rotation: [-0.02, -0.08, -0.02],
+    size: 0.5,
+    opacity: 0.15,
+    speed: 0.09,
   },
   {
-    position: [-0.95, -0.95, -5.95],
+    position: [-7.15, -5.35, -5.35],
+    rotation: [0.02, 0.16, -0.1],
+    size: 0.5,
+    opacity: 0.15,
+    speed: 0.09,
+  },
+  {
+    position: [0.15, -6.35, -5.7],
+    rotation: [-0.02, -0.14, 0.1],
+    size: 0.46,
+    opacity: 0.13,
+    speed: 0.08,
+  },
+  {
+    position: [-0.65, 6.45, -5.8],
+    rotation: [0.04, -0.12, 0.14],
+    size: 0.46,
+    opacity: 0.13,
+    speed: 0.08,
+  },
+  {
+    position: [12.25, -3.65, -6.05],
+    rotation: [-0.05, 0.12, -0.16],
+    size: 0.42,
+    opacity: 0.11,
+    speed: 0.07,
+  },
+  {
+    position: [-12.55, -3.8, -6.15],
     rotation: [0.04, 0.08, -0.04],
-    scale: [0.32, 0.22, 1],
-    opacity: 0.12,
-    speed: 0.09,
+    size: 0.42,
+    opacity: 0.11,
+    speed: 0.07,
   },
   {
-    position: [0.9, 1.05, -6.05],
+    position: [3.65, 6.85, -6.45],
     rotation: [-0.04, -0.08, 0.04],
-    scale: [0.32, 0.22, 1],
-    opacity: 0.12,
-    speed: 0.09,
+    size: 0.38,
+    opacity: 0.1,
+    speed: 0.06,
   },
   {
-    position: [-3.4, 2.75, -6.25],
+    position: [-3.85, -6.85, -6.55],
     rotation: [0.02, 0.1, 0.12],
-    scale: [0.28, 0.19, 1],
+    size: 0.38,
     opacity: 0.1,
-    speed: 0.08,
+    speed: 0.06,
   },
   {
-    position: [3.35, -2.7, -6.25],
+    position: [8.85, -6.1, -7],
     rotation: [-0.02, -0.1, -0.12],
-    scale: [0.28, 0.19, 1],
-    opacity: 0.1,
-    speed: 0.08,
+    size: 0.34,
+    opacity: 0.09,
+    speed: 0.055,
   },
   {
-    position: [-4.25, 0.1, -6.6],
+    position: [-9.05, 6.05, -7.1],
     rotation: [0.04, 0.16, -0.08],
-    scale: [0.24, 0.16, 1],
-    opacity: 0.08,
-    speed: 0.07,
+    size: 0.34,
+    opacity: 0.09,
+    speed: 0.055,
   },
   {
-    position: [4.25, -0.05, -6.6],
+    position: [0.55, -1.25, -5.2],
     rotation: [-0.04, -0.16, 0.08],
-    scale: [0.24, 0.16, 1],
-    opacity: 0.08,
-    speed: 0.07,
+    size: 0.38,
+    opacity: 0.13,
+    speed: 0.06,
   },
 ];
 
-const collageItems = collageSources.map((src, index) => ({
-  src,
-  ...collageLayouts[index % collageLayouts.length],
-}));
+const collageItems = collageSources.map((src, index) => {
+  const layout = collageLayouts[index % collageLayouts.length];
+
+  return {
+    src,
+    ...layout,
+    phase: index * 0.72,
+    floatX: 0.025 + (index % 5) * 0.008,
+    floatY: 0.045 + (index % 4) * 0.01,
+  };
+});
 
 class WebGLFallbackBoundary extends Component {
   constructor(props) {
@@ -239,6 +278,9 @@ class WebGLFallbackBoundary extends Component {
 
 function CollagePlane({ item, texture }) {
   const meshRef = useRef(null);
+  const aspect = texture.image ? texture.image.width / texture.image.height : 1;
+  const width = aspect >= 1 ? item.size : item.size * aspect;
+  const height = aspect >= 1 ? item.size / aspect : item.size;
 
   useFrame((state) => {
     if (!meshRef.current) {
@@ -246,15 +288,17 @@ function CollagePlane({ item, texture }) {
     }
 
     const time = state.clock.elapsedTime;
+    meshRef.current.position.x =
+      item.position[0] + Math.sin(time * item.speed * 0.72 + item.phase) * item.floatX;
     meshRef.current.position.y =
-      item.position[1] + Math.sin(time * item.speed + item.position[0]) * 0.08;
+      item.position[1] + Math.sin(time * item.speed + item.phase) * item.floatY;
     meshRef.current.rotation.z =
-      item.rotation[2] + Math.sin(time * item.speed * 0.75) * 0.025;
+      item.rotation[2] + Math.sin(time * item.speed * 0.75 + item.phase) * 0.018;
   });
 
   return (
     <mesh ref={meshRef} position={item.position} rotation={item.rotation}>
-      <planeGeometry args={[item.scale[0], item.scale[1], 1, 1]} />
+      <planeGeometry args={[width, height, 1, 1]} />
       <meshBasicMaterial
         map={texture}
         transparent
@@ -307,20 +351,14 @@ function AbstractFragments() {
           <meshBasicMaterial color="#f1eee7" transparent opacity={0.42} />
         </mesh>
       ))}
-      <mesh position={[0.15, 0.1, -2.6]} rotation={[0.25, 0.4, -0.2]}>
-        <boxGeometry args={[0.48, 0.48, 0.02]} />
-        <meshBasicMaterial color="#f1eee7" transparent opacity={0.065} wireframe />
-      </mesh>
     </group>
   );
 }
 
-function WorldScene() {
+function WorldScene({ shouldReduceMotion, travelRef }) {
   const groupRef = useRef(null);
-  const dragRef = useRef({ active: false, x: 0, y: 0 });
-  const [dragOffset, setDragOffset] = useState([0, 0]);
   const textures = useTexture(collageItems.map((item) => item.src));
-  const { pointer } = useThree();
+  const { camera, pointer } = useThree();
 
   useMemo(() => {
     textures.forEach((texture) => {
@@ -337,53 +375,41 @@ function WorldScene() {
     }
 
     const time = state.clock.elapsedTime;
-    const targetX = pointer.y * 0.1 + dragOffset[1] * 0.0012;
-    const targetY = pointer.x * 0.16 + dragOffset[0] * 0.0012;
+    const travel = travelRef.current;
+    const travelEase = shouldReduceMotion ? 1 : 0.055;
+    const zoomEase = shouldReduceMotion ? 1 : 0.08;
+    const parallaxX = shouldReduceMotion ? 0 : pointer.x * 0.18;
+    const parallaxY = shouldReduceMotion ? 0 : pointer.y * 0.12;
+    const driftX = shouldReduceMotion ? 0 : Math.sin(time * 0.08) * 0.08;
+    const driftY = shouldReduceMotion ? 0 : Math.cos(time * 0.1) * 0.05;
+
+    travel.currentX += (travel.targetX - travel.currentX) * travelEase;
+    travel.currentY += (travel.targetY - travel.currentY) * travelEase;
+    travel.currentZ += (travel.targetZ - travel.currentZ) * zoomEase;
+
+    groupRef.current.position.x = travel.currentX + parallaxX + driftX;
+    groupRef.current.position.y = travel.currentY + parallaxY + driftY;
+    groupRef.current.position.z = THREE.MathUtils.lerp(groupRef.current.position.z, 0, 0.035);
 
     groupRef.current.rotation.x = THREE.MathUtils.lerp(
       groupRef.current.rotation.x,
-      targetX,
-      0.04,
+      shouldReduceMotion ? 0 : pointer.y * 0.018,
+      0.035,
     );
     groupRef.current.rotation.y = THREE.MathUtils.lerp(
       groupRef.current.rotation.y,
-      targetY,
-      0.04,
+      shouldReduceMotion ? 0 : pointer.x * 0.024,
+      0.035,
     );
-    groupRef.current.position.y = Math.sin(time * 0.22) * 0.05;
+
+    camera.position.x = THREE.MathUtils.lerp(camera.position.x, travel.currentX * -0.045, 0.035);
+    camera.position.y = THREE.MathUtils.lerp(camera.position.y, travel.currentY * -0.035, 0.035);
+    camera.position.z = travel.currentZ;
+    camera.lookAt(0, 0, -3.2);
   });
 
-  function handlePointerDown(event) {
-    dragRef.current = {
-      active: true,
-      x: event.clientX,
-      y: event.clientY,
-    };
-  }
-
-  function handlePointerMove(event) {
-    if (!dragRef.current.active) {
-      return;
-    }
-
-    setDragOffset([
-      event.clientX - dragRef.current.x,
-      event.clientY - dragRef.current.y,
-    ]);
-  }
-
-  function handlePointerUp() {
-    dragRef.current.active = false;
-  }
-
   return (
-    <group
-      ref={groupRef}
-      onPointerDown={handlePointerDown}
-      onPointerMove={handlePointerMove}
-      onPointerUp={handlePointerUp}
-      onPointerLeave={handlePointerUp}
-    >
+    <group ref={groupRef}>
       {collageItems.map((item, index) => (
         <CollagePlane item={item} texture={textures[index]} key={item.src} />
       ))}
@@ -393,11 +419,15 @@ function WorldScene() {
 }
 
 function WebGLFallback() {
+  function handleImageError(event) {
+    event.currentTarget.hidden = true;
+  }
+
   return (
     <div className="world-webgl-fallback" aria-hidden="true">
       {collageItems.map((item) => {
         const [x, y, z] = item.position;
-        const depthScale = THREE.MathUtils.mapLinear(z, -6.8, -1.1, 0.35, 1);
+        const depthScale = THREE.MathUtils.mapLinear(z, -7.2, -1, 0.35, 1);
 
         return (
           <img
@@ -407,12 +437,13 @@ function WebGLFallback() {
             className="fallback-image"
             loading="lazy"
             decoding="async"
+            onError={handleImageError}
             style={{
-              left: `${50 + x * 11}%`,
-              top: `${50 - y * 13}%`,
+              left: `${50 + x * 7}%`,
+              top: `${50 - y * 8}%`,
               opacity: Math.max(item.opacity * 0.8, 0.08),
               transform: `translate(-50%, -50%) rotate(${item.rotation[2]}rad)`,
-              width: `${Math.max(item.scale[0] * 190 * depthScale, 42)}px`,
+              width: `${Math.max(item.size * 190 * depthScale, 42)}px`,
             }}
           />
         );
@@ -421,27 +452,124 @@ function WebGLFallback() {
   );
 }
 
-export default function InteractiveWorldSection() {
+export default function InteractiveWorldSection({ isBlurred = false }) {
   const sectionRef = useRef(null);
+  const frameRef = useRef(null);
+  const dragRef = useRef({ active: false, lastX: 0, lastY: 0, pointerId: null });
+  const travelRef = useRef({
+    targetX: 0,
+    targetY: 0,
+    targetZ: CAMERA_Z.initial,
+    currentX: 0,
+    currentY: 0,
+    currentZ: CAMERA_Z.initial,
+  });
+  const [isDragging, setIsDragging] = useState(false);
   const isInView = useInView(sectionRef, { amount: 0.15 });
+  const shouldReduceMotion = useReducedMotion();
+
+  useEffect(() => {
+    const frame = frameRef.current;
+
+    if (!frame || isBlurred) {
+      return undefined;
+    }
+
+    function handleWheel(event) {
+      event.preventDefault();
+
+      const deltaMultiplier =
+        event.deltaMode === WheelEvent.DOM_DELTA_LINE
+          ? 16
+          : event.deltaMode === WheelEvent.DOM_DELTA_PAGE
+            ? window.innerHeight
+            : 1;
+      const deltaY = clampValue(event.deltaY * deltaMultiplier, 220);
+      zoomWorldTarget(travelRef, deltaY * 0.006);
+    }
+
+    frame.addEventListener("wheel", handleWheel, { passive: false });
+
+    return () => {
+      frame.removeEventListener("wheel", handleWheel);
+    };
+  }, [isBlurred]);
+
+  function handlePointerDown(event) {
+    if (isBlurred || event.button > 0) {
+      return;
+    }
+
+    dragRef.current = {
+      active: true,
+      lastX: event.clientX,
+      lastY: event.clientY,
+      pointerId: event.pointerId,
+    };
+    event.currentTarget.setPointerCapture?.(event.pointerId);
+    setIsDragging(true);
+  }
+
+  function handlePointerMove(event) {
+    const drag = dragRef.current;
+
+    if (!drag.active) {
+      return;
+    }
+
+    event.preventDefault();
+
+    const deltaX = event.clientX - drag.lastX;
+    const deltaY = event.clientY - drag.lastY;
+
+    drag.lastX = event.clientX;
+    drag.lastY = event.clientY;
+
+    moveWorldTarget(travelRef, deltaX * 0.011, -deltaY * 0.011);
+  }
+
+  function handlePointerUp(event) {
+    if (!dragRef.current.active) {
+      return;
+    }
+
+    event.currentTarget.releasePointerCapture?.(dragRef.current.pointerId);
+    dragRef.current.active = false;
+    dragRef.current.pointerId = null;
+    setIsDragging(false);
+  }
 
   return (
     <motion.section
       ref={sectionRef}
       id="world"
-      className="site-section site-section--world"
-      initial={{ opacity: 0 }}
-      whileInView={{ opacity: 1 }}
-      viewport={{ once: true, amount: 0.35 }}
-      transition={{ duration: 1.3, ease: [0.22, 1, 0.36, 1] }}
+      className={`site-section site-section--world world-section${
+        isBlurred ? " world-section--blurred" : ""
+      }`}
+      tabIndex={-1}
+      aria-label="Hidden Thoughts interactive world"
+      aria-hidden={isBlurred}
+      variants={sectionFade}
+      initial={shouldReduceMotion ? false : "hidden"}
+      whileInView="show"
+      viewport={viewportOnce}
     >
-      <div className="world-canvas-frame" aria-hidden="true">
+      <div
+        ref={frameRef}
+        className={`world-canvas-frame${isDragging ? " is-dragging" : ""}`}
+        aria-hidden="true"
+        onPointerDown={handlePointerDown}
+        onPointerMove={handlePointerMove}
+        onPointerUp={handlePointerUp}
+        onPointerCancel={handlePointerUp}
+        onPointerLeave={handlePointerUp}
+      >
         <WebGLFallbackBoundary fallback={<WebGLFallback />}>
           <Suspense fallback={<WebGLFallback />}>
             <Canvas
-              camera={{ position: [0, 0, 5.8], fov: 42 }}
+              camera={{ position: [0, 0, CAMERA_Z.initial], fov: 42, near: 0.1, far: 80 }}
               dpr={[1, 1.35]}
-              frameloop={isInView ? "always" : "demand"}
+              frameloop={isInView && !isBlurred ? "always" : "demand"}
               gl={{
                 alpha: true,
                 antialias: false,
@@ -449,39 +577,29 @@ export default function InteractiveWorldSection() {
               }}
             >
               <color attach="background" args={["#030303"]} />
-              <WorldScene />
+              <WorldScene shouldReduceMotion={shouldReduceMotion} travelRef={travelRef} />
             </Canvas>
           </Suspense>
         </WebGLFallbackBoundary>
       </div>
 
+      <div className="world-archive-labels" aria-hidden="true">
+        <span>archive 01 / drag</span>
+        <span>hidden thoughts / world</span>
+        <span>scroll to zoom</span>
+      </div>
+
       <motion.div
         className="section-content world-content"
-        initial={{ opacity: 0, y: 24 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, amount: 0.4 }}
-        transition={{ duration: 1.1, delay: 0.35, ease: [0.22, 1, 0.36, 1] }}
+        variants={softReveal}
+        initial={shouldReduceMotion ? false : "hidden"}
+        whileInView="show"
+        viewport={viewportOnce}
       >
-        <p className="section-kicker">Atmospheric collage space</p>
-        <h2>Fragments that do not settle.</h2>
-        <ul className="world-fragments" aria-label="Poetic fragments">
-          {siteContent.manifesto.map((line, index) => (
-            <motion.li
-              key={line}
-              initial={{ opacity: 0, x: index % 2 === 0 ? -16 : 16 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true, amount: 0.45 }}
-              transition={{
-                duration: 0.9,
-                delay: 0.52 + index * 0.08,
-                ease: [0.22, 1, 0.36, 1],
-              }}
-            >
-              {line}
-            </motion.li>
-          ))}
-        </ul>
-        <p className="world-instruction">drag to explore</p>
+        <p className="section-kicker">{siteContent.brandName}</p>
+        <p className="world-statement">{siteContent.headline}</p>
+        <p className="section-copy world-copy">{siteContent.worldIntro}</p>
+        <p className="world-instruction">drag to move / scroll to zoom</p>
       </motion.div>
     </motion.section>
   );

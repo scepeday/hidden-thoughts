@@ -1,34 +1,61 @@
-import { lazy, Suspense } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
+import AudioControl from "./components/AudioControl.jsx";
 import MenuButton from "./components/MenuButton.jsx";
-import CreditsSection from "./sections/CreditsSection.jsx";
-import IndexSection from "./sections/IndexSection.jsx";
-import IntroSection from "./sections/IntroSection.jsx";
-import NotesSection from "./sections/NotesSection.jsx";
+import ProductsOverlay from "./components/ProductsOverlay.jsx";
 
 const InteractiveWorldSection = lazy(() => import("./sections/InteractiveWorldSection.jsx"));
 
 export default function App() {
+  const [isProductsOpen, setIsProductsOpen] = useState(false);
+
+  useEffect(() => {
+    if (!isProductsOpen) {
+      return undefined;
+    }
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [isProductsOpen]);
+
+  function handleReturnToWorld() {
+    setIsProductsOpen(false);
+
+    window.requestAnimationFrame(() => {
+      document.getElementById("world")?.focus({ preventScroll: true });
+    });
+  }
+
+  function handleFocusSound() {
+    document.getElementById("audio-toggle")?.focus();
+  }
+
   return (
-    <>
-      <MenuButton />
-      <main className="app-shell">
-        <IntroSection />
-        <IndexSection />
+    <div className={`app-shell${isProductsOpen ? " app-shell--overlay-open" : ""}`}>
+      <MenuButton
+        onReturnToWorld={handleReturnToWorld}
+        onOpenProducts={() => setIsProductsOpen(true)}
+        onFocusSound={handleFocusSound}
+      />
+      <AudioControl />
+      <main className="app-main">
         <Suspense
           fallback={
-            <section id="world" className="site-section site-section--world">
+            <section id="world" className="site-section site-section--world world-section">
               <div className="section-content world-content">
-                <p className="section-kicker">Atmospheric collage space</p>
-                <h2>Fragments loading quietly.</h2>
+                <p className="section-kicker">Hidden Thoughts</p>
+                <h1>Fragments loading quietly.</h1>
               </div>
             </section>
           }
         >
-          <InteractiveWorldSection />
+          <InteractiveWorldSection isBlurred={isProductsOpen} />
         </Suspense>
-        <NotesSection />
-        <CreditsSection />
       </main>
-    </>
+      <ProductsOverlay isOpen={isProductsOpen} onClose={handleReturnToWorld} />
+    </div>
   );
 }

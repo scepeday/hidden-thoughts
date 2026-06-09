@@ -1,27 +1,19 @@
 export const navigationItems = [
   {
-    label: "Intro",
-    href: "#intro",
-  },
-  {
-    label: "Index",
-    href: "#index",
-  },
-  {
-    label: "Notes",
-    href: "#notes",
-  },
-  {
     label: "World",
-    href: "#world",
+    action: "world",
   },
   {
-    label: "Credits",
-    href: "#credits",
+    label: "Products",
+    action: "products",
   },
   {
     label: "Shop ↗",
     href: "https://hidden-thoughts.myshopify.com",
     external: true,
+  },
+  {
+    label: "Sound",
+    action: "sound",
   },
 ];
