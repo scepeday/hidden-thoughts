@@ -9,7 +9,7 @@ export const navigationItems = [
   },
   {
     label: "Shop ↗",
-    href: "https://hidden-thoughts.myshopify.com",
+    href: "https://thoughtshidden.myshopify.com/",
     external: true,
   },
   {

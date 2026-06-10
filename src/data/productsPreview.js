@@ -7,21 +7,21 @@ export const productsPreview = [
   {
     name: "Unspoken Tee",
     image: productPreview01,
-    shopUrl: "https://hidden-thoughts.myshopify.com/products/unspoken-tee",
+    shopUrl: "https://thoughtshidden.myshopify.com/products/unspoken-tee",
   },
   {
     name: "Private Notes Hoodie",
     image: productPreview02,
-    shopUrl: "https://hidden-thoughts.myshopify.com/products/private-notes-hoodie",
+    shopUrl: "https://thoughtshidden.myshopify.com/products/private-notes-hoodie",
   },
   {
     name: "Shadow Script Cap",
     image: productPreview03,
-    shopUrl: "https://hidden-thoughts.myshopify.com/products/shadow-script-cap",
+    shopUrl: "https://thoughtshidden.myshopify.com/products/shadow-script-cap",
   },
   {
     name: "Noise Layer Long Sleeve",
     image: productPreview04,
-    shopUrl: "https://hidden-thoughts.myshopify.com/products/noise-layer-long-sleeve",
+    shopUrl: "https://thoughtshidden.myshopify.com/products/noise-layer-long-sleeve",
   },
 ];

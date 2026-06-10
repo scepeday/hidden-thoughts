@@ -1,11 +1,15 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { productsPreview } from "../data/productsPreview.js";
+import { fetchShopifyProductPreviews } from "../data/shopifyProducts.js";
 import { noteReveal, softReveal } from "../styles/animations.js";
 
 export default function ProductsOverlay({ isOpen, onClose }) {
   const closeButtonRef = useRef(null);
   const shouldReduceMotion = useReducedMotion();
+  const [shopifyProducts, setShopifyProducts] = useState([]);
+  const [isLoadingProducts, setIsLoadingProducts] = useState(false);
+  const [productsError, setProductsError] = useState("");
 
   useEffect(() => {
     if (!isOpen) {
@@ -29,6 +33,41 @@ export default function ProductsOverlay({ isOpen, onClose }) {
     };
   }, [isOpen, onClose]);
 
+  useEffect(() => {
+    if (!isOpen) {
+      return undefined;
+    }
+
+    let isCancelled = false;
+
+    async function loadProducts() {
+      setIsLoadingProducts(true);
+      setProductsError("");
+
+      try {
+        const products = await fetchShopifyProductPreviews(3);
+
+        if (!isCancelled) {
+          setShopifyProducts(products);
+        }
+      } catch {
+        if (!isCancelled) {
+          setProductsError("Live Shopify preview unavailable. Showing archived preview.");
+        }
+      } finally {
+        if (!isCancelled) {
+          setIsLoadingProducts(false);
+        }
+      }
+    }
+
+    loadProducts();
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [isOpen]);
+
   function handleBackdropMouseDown(event) {
     if (event.target === event.currentTarget) {
       onClose();
@@ -38,6 +77,12 @@ export default function ProductsOverlay({ isOpen, onClose }) {
   function handleImageError(event) {
     event.currentTarget.hidden = true;
   }
+
+  function preventOverlayScroll(event) {
+    event.preventDefault();
+  }
+
+  const previewProducts = (shopifyProducts.length ? shopifyProducts : productsPreview).slice(0, 3);
 
   return (
     <AnimatePresence>
@@ -49,6 +94,8 @@ export default function ProductsOverlay({ isOpen, onClose }) {
           aria-labelledby="products-overlay-title"
           aria-describedby="products-overlay-note"
           onMouseDown={handleBackdropMouseDown}
+          onWheel={preventOverlayScroll}
+          onTouchMove={preventOverlayScroll}
           initial={shouldReduceMotion ? false : { opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={shouldReduceMotion ? undefined : { opacity: 0 }}
@@ -78,36 +125,41 @@ export default function ProductsOverlay({ isOpen, onClose }) {
               <p id="products-overlay-note">Full shopping experience opens in Shopify.</p>
             </div>
 
+            {(isLoadingProducts || productsError) && (
+              <p className="products-overlay__status" aria-live="polite">
+                {isLoadingProducts ? "Loading Shopify preview." : productsError}
+              </p>
+            )}
+
             <div className="products-overlay__grid" aria-label="Product previews">
-              {productsPreview.map((product, index) => (
-                <motion.article
+              {previewProducts.map((product, index) => (
+                <motion.a
                   className="product-preview-card texture-surface texture-surface--paper"
-                  key={product.name}
+                  href={product.shopUrl}
+                  key={product.id || product.name}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={`View ${product.name} on Shopify`}
                   custom={index}
                   variants={noteReveal}
                   initial={shouldReduceMotion ? false : "hidden"}
                   animate="show"
                 >
-                  <img
-                    src={product.image}
-                    alt=""
-                    loading="lazy"
-                    decoding="async"
-                    onError={handleImageError}
-                  />
+                  {product.image && (
+                    <img
+                      src={product.image}
+                      alt={product.imageAlt || ""}
+                      loading="lazy"
+                      decoding="async"
+                      onError={handleImageError}
+                    />
+                  )}
                   <div>
-                    <p>{String(index + 1).padStart(2, "0")}</p>
+                    <p>{product.label || String(index + 1).padStart(2, "0")}</p>
                     <h3>{product.name}</h3>
-                    <a
-                      href={product.shopUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      aria-label={`View ${product.name} on Shopify`}
-                    >
-                      View on Shopify ↗
-                    </a>
+                    <span>View on Shopify ↗</span>
                   </div>
-                </motion.article>
+                </motion.a>
               ))}
             </div>
           </motion.div>
