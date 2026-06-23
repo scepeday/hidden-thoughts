@@ -6,7 +6,6 @@ import { menuPanel } from "../styles/animations.js";
 export default function MenuButton({
   onReturnToWorld = () => {},
   onOpenProducts = () => {},
-  onFocusSound = () => {},
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef(null);
@@ -49,10 +48,6 @@ export default function MenuButton({
 
     if (action === "products") {
       onOpenProducts();
-    }
-
-    if (action === "sound") {
-      onFocusSound();
     }
 
     setIsOpen(false);

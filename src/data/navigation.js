@@ -12,8 +12,4 @@ export const navigationItems = [
     href: "https://thoughtshidden.myshopify.com/",
     external: true,
   },
-  {
-    label: "Sound",
-    action: "sound",
-  },
 ];

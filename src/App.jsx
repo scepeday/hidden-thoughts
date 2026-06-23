@@ -32,10 +32,6 @@ export default function App() {
     });
   }
 
-  function handleFocusSound() {
-    document.getElementById("audio-toggle")?.focus();
-  }
-
   return (
     <div
       className={`app-shell${isProductsOpen ? " app-shell--overlay-open" : ""}${
@@ -46,7 +42,6 @@ export default function App() {
         <MenuButton
           onReturnToWorld={handleReturnToWorld}
           onOpenProducts={() => setIsProductsOpen(true)}
-          onFocusSound={handleFocusSound}
         />
       )}
       <AudioControl isVisible={hasEntered} />
