@@ -7,7 +7,7 @@ const audioModules = import.meta.glob("../assets/audio/background-music.mp3", {
 
 const audioSource = audioModules["../assets/audio/background-music.mp3"] ?? null;
 
-export default function AudioControl() {
+export default function AudioControl({ isVisible = true }) {
   const audioRef = useRef(null);
   const [hasStarted, setHasStarted] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -24,7 +24,7 @@ export default function AudioControl() {
 
     audio.volume = 0.72;
 
-    async function attemptAutoplay() {
+    async function startAudio() {
       try {
         await audio.play();
         setHasStarted(true);
@@ -36,7 +36,11 @@ export default function AudioControl() {
       }
     }
 
-    attemptAutoplay();
+    window.addEventListener("hidden-thoughts:start-audio", startAudio);
+
+    return () => {
+      window.removeEventListener("hidden-thoughts:start-audio", startAudio);
+    };
   }, [hasError]);
 
   async function handlePlayPause() {
@@ -85,8 +89,9 @@ export default function AudioControl() {
 
   return (
     <div
-      className="audio-control"
+      className={`audio-control${isVisible ? "" : " audio-control--hidden"}`}
       aria-label="Background music controls"
+      aria-hidden={!isVisible}
       data-autoplay-blocked={autoplayBlocked}
     >
       <audio

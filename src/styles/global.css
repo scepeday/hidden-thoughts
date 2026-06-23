@@ -108,6 +108,86 @@ a {
   overflow: hidden;
 }
 
+.app-shell--entry-gated .app-main,
+.app-shell--entry-gated .world-content,
+.app-shell--entry-gated .world-archive-labels {
+  opacity: 0;
+}
+
+.entry-gate {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  padding: clamp(20px, 5vw, 72px);
+  overflow: hidden;
+  background: #000;
+}
+
+.entry-gate::before {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: url("../assets/web/textures/noise.png");
+  background-repeat: repeat;
+  background-size: 220px 220px;
+  opacity: 0.045;
+  content: "";
+}
+
+.entry-gate__inner {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  width: min(360px, 100%);
+  justify-items: center;
+  gap: 18px;
+  text-align: center;
+}
+
+.entry-gate__logo {
+  display: block;
+  width: min(220px, 62vw);
+  height: auto;
+  opacity: 0.82;
+}
+
+.entry-gate__title {
+  color: rgb(241 238 231 / 0.72);
+  font-size: 0.68rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+
+.entry-gate__copy {
+  max-width: 17rem;
+  color: rgb(241 238 231 / 0.5);
+  font-size: 0.78rem;
+  line-height: 1.7;
+}
+
+.entry-gate__button {
+  min-width: 118px;
+  min-height: 38px;
+  border: 1px solid rgb(241 238 231 / 0.24);
+  border-radius: 0;
+  background:
+    linear-gradient(rgb(255 255 255 / 0.04), transparent),
+    rgb(3 3 3 / 0.78);
+  color: rgb(241 238 231 / 0.82);
+  cursor: pointer;
+  font-size: 0.68rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.entry-gate__button:hover,
+.entry-gate__button:focus-visible {
+  border-color: rgb(241 238 231 / 0.58);
+  color: var(--color-bone);
+}
+
 .texture-surface {
   position: relative;
   isolation: isolate;
@@ -173,6 +253,7 @@ a {
 
 .menu-button:focus-visible,
 .audio-button:focus-visible,
+.entry-gate__button:focus-visible,
 .menu-panel a:focus-visible,
 .menu-panel button:focus-visible,
 .product-preview-card:focus-visible,
@@ -226,6 +307,12 @@ a {
   display: flex;
   gap: 8px;
   align-items: center;
+}
+
+.audio-control--hidden {
+  pointer-events: none;
+  visibility: hidden;
+  opacity: 0;
 }
 
 .audio-button {
@@ -309,12 +396,12 @@ h2 {
 .world-section {
   outline: none;
   transition:
-    filter 0.5s ease,
-    opacity 0.5s ease;
+    opacity 0.24s ease;
 }
 
 .world-section--blurred {
-  filter: blur(8px) brightness(0.45);
+  filter: none;
+  opacity: 0.48;
   pointer-events: none;
 }
 
@@ -328,9 +415,10 @@ h2 {
   inset: 0;
   z-index: 1;
   cursor: grab;
-  opacity: 0.9;
+  opacity: 0.96;
   touch-action: none;
   user-select: none;
+  -webkit-user-select: none;
 }
 
 .world-canvas-frame:active,
@@ -362,25 +450,34 @@ h2 {
   left: clamp(18px, 5vw, 72px);
   bottom: clamp(72px, 9vw, 118px);
   z-index: 3;
-  width: min(22rem, calc(100vw - 36px));
+  width: min(19rem, calc(100vw - 36px));
   padding: 0;
+  opacity: 0.78;
   pointer-events: none;
 }
 
+.world-logo {
+  display: block;
+  width: min(168px, 44vw);
+  height: auto;
+  margin-bottom: 18px;
+  opacity: 0.76;
+}
+
 .world-statement {
-  max-width: 18rem;
-  color: rgb(241 238 231 / 0.84);
+  max-width: 15rem;
+  color: rgb(241 238 231 / 0.72);
   font-family: Georgia, "Times New Roman", serif;
-  font-size: clamp(1.2rem, 2.6vw, 2.5rem);
-  line-height: 1;
+  font-size: clamp(1.02rem, 2vw, 1.72rem);
+  line-height: 1.06;
 }
 
 .world-copy {
-  max-width: 18rem;
-  margin-top: 18px;
-  color: rgb(241 238 231 / 0.48);
-  font-size: 0.78rem;
-  line-height: 1.65;
+  max-width: 15rem;
+  margin-top: 14px;
+  color: rgb(241 238 231 / 0.4);
+  font-size: 0.72rem;
+  line-height: 1.58;
 }
 
 .world-fragments {
@@ -410,9 +507,9 @@ h2 {
 }
 
 .world-instruction {
-  margin-top: 24px;
-  color: rgb(241 238 231 / 0.42);
-  font-size: 0.72rem;
+  margin-top: 18px;
+  color: rgb(241 238 231 / 0.38);
+  font-size: 0.62rem;
   letter-spacing: 0.2em;
   text-transform: uppercase;
 }
@@ -443,17 +540,6 @@ h2 {
   left: clamp(18px, 5vw, 72px);
 }
 
-.world-archive-labels span:nth-child(2) {
-  right: clamp(18px, 5vw, 72px);
-  bottom: 26%;
-  text-align: right;
-}
-
-.world-archive-labels span:nth-child(3) {
-  right: clamp(18px, 9vw, 140px);
-  bottom: 14%;
-}
-
 .products-overlay {
   position: fixed;
   inset: 0;
@@ -464,9 +550,7 @@ h2 {
   overflow: hidden;
   overscroll-behavior: none;
   touch-action: none;
-  background: rgb(0 0 0 / 0.55);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  background: rgb(0 0 0 / 0.74);
 }
 
 .products-overlay::before {
@@ -535,8 +619,8 @@ h2 {
 
 .products-overlay__grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: clamp(12px, 1.5vw, 20px);
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: clamp(8px, 1vw, 14px);
   align-items: start;
 }
 
@@ -556,15 +640,15 @@ h2 {
   display: block;
   width: 100%;
   height: auto;
-  max-height: min(30vh, 260px);
+  max-height: min(24vh, 210px);
   opacity: 0.72;
   object-fit: contain;
 }
 
 .product-preview-card div {
   display: grid;
-  gap: 10px;
-  padding: 14px;
+  gap: 8px;
+  padding: 12px;
 }
 
 .product-preview-card p {
@@ -577,7 +661,7 @@ h2 {
   margin: 0;
   color: rgb(241 238 231 / 0.86);
   font-family: Georgia, "Times New Roman", serif;
-  font-size: clamp(1.08rem, 1.6vw, 1.55rem);
+  font-size: clamp(0.92rem, 1.2vw, 1.18rem);
   font-weight: 400;
   line-height: 1;
 }
@@ -597,7 +681,7 @@ h2 {
 
 @media (max-width: 860px) {
   .products-overlay__grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(5, minmax(0, 1fr));
   }
 }
 
@@ -649,18 +733,19 @@ h2 {
     right: 18px;
     bottom: 82px;
     max-width: calc(100vw - 36px);
+    opacity: 0.72;
   }
 
   .world-statement {
-    max-width: 16rem;
-    font-size: clamp(1.15rem, 6vw, 1.55rem);
+    max-width: 14rem;
+    font-size: clamp(1.02rem, 5.2vw, 1.32rem);
   }
 
   .world-copy {
-    max-width: 18rem;
-    margin-top: 14px;
-    font-size: 0.76rem;
-    line-height: 1.58;
+    max-width: 15rem;
+    margin-top: 10px;
+    font-size: 0.68rem;
+    line-height: 1.46;
   }
 
   .world-fragments {

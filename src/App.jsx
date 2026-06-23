@@ -1,11 +1,14 @@
 import { lazy, Suspense, useEffect, useState } from "react";
+import { AnimatePresence } from "framer-motion";
 import AudioControl from "./components/AudioControl.jsx";
+import EntryGate from "./components/EntryGate.jsx";
 import MenuButton from "./components/MenuButton.jsx";
 import ProductsOverlay from "./components/ProductsOverlay.jsx";
 
 const InteractiveWorldSection = lazy(() => import("./sections/InteractiveWorldSection.jsx"));
 
 export default function App() {
+  const [hasEntered, setHasEntered] = useState(false);
   const [isProductsOpen, setIsProductsOpen] = useState(false);
 
   useEffect(() => {
@@ -34,13 +37,19 @@ export default function App() {
   }
 
   return (
-    <div className={`app-shell${isProductsOpen ? " app-shell--overlay-open" : ""}`}>
-      <MenuButton
-        onReturnToWorld={handleReturnToWorld}
-        onOpenProducts={() => setIsProductsOpen(true)}
-        onFocusSound={handleFocusSound}
-      />
-      <AudioControl />
+    <div
+      className={`app-shell${isProductsOpen ? " app-shell--overlay-open" : ""}${
+        hasEntered ? " app-shell--entered" : " app-shell--entry-gated"
+      }`}
+    >
+      {hasEntered && (
+        <MenuButton
+          onReturnToWorld={handleReturnToWorld}
+          onOpenProducts={() => setIsProductsOpen(true)}
+          onFocusSound={handleFocusSound}
+        />
+      )}
+      <AudioControl isVisible={hasEntered} />
       <main className="app-main">
         <Suspense
           fallback={
@@ -55,7 +64,10 @@ export default function App() {
           <InteractiveWorldSection isBlurred={isProductsOpen} />
         </Suspense>
       </main>
-      <ProductsOverlay isOpen={isProductsOpen} onClose={handleReturnToWorld} />
+      <ProductsOverlay isOpen={hasEntered && isProductsOpen} onClose={handleReturnToWorld} />
+      <AnimatePresence>
+        {!hasEntered && <EntryGate onEnter={() => setHasEntered(true)} />}
+      </AnimatePresence>
     </div>
   );
 }

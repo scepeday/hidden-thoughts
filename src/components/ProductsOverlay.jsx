@@ -4,6 +4,10 @@ import { productsPreview } from "../data/productsPreview.js";
 import { fetchShopifyProductPreviews } from "../data/shopifyProducts.js";
 import { noteReveal, softReveal } from "../styles/animations.js";
 
+let cachedShopifyProducts = null;
+let cachedProductsError = "";
+let hasRequestedShopifyProducts = false;
+
 export default function ProductsOverlay({ isOpen, onClose }) {
   const closeButtonRef = useRef(null);
   const shouldReduceMotion = useReducedMotion();
@@ -38,21 +42,35 @@ export default function ProductsOverlay({ isOpen, onClose }) {
       return undefined;
     }
 
+    if (cachedShopifyProducts) {
+      setShopifyProducts(cachedShopifyProducts);
+      return undefined;
+    }
+
+    if (hasRequestedShopifyProducts) {
+      setProductsError(cachedProductsError);
+      return undefined;
+    }
+
     let isCancelled = false;
+    let requestId = 0;
 
     async function loadProducts() {
+      hasRequestedShopifyProducts = true;
       setIsLoadingProducts(true);
       setProductsError("");
 
       try {
-        const products = await fetchShopifyProductPreviews(3);
+        const products = await fetchShopifyProductPreviews(5);
 
         if (!isCancelled) {
+          cachedShopifyProducts = products;
           setShopifyProducts(products);
         }
       } catch {
         if (!isCancelled) {
-          setProductsError("Live Shopify preview unavailable. Showing archived preview.");
+          cachedProductsError = "Live Shopify preview unavailable. Showing archived preview.";
+          setProductsError(cachedProductsError);
         }
       } finally {
         if (!isCancelled) {
@@ -61,10 +79,20 @@ export default function ProductsOverlay({ isOpen, onClose }) {
       }
     }
 
-    loadProducts();
+    if ("requestIdleCallback" in window) {
+      requestId = window.requestIdleCallback(loadProducts, { timeout: 1200 });
+    } else {
+      requestId = window.setTimeout(loadProducts, 650);
+    }
 
     return () => {
       isCancelled = true;
+
+      if ("cancelIdleCallback" in window && requestId) {
+        window.cancelIdleCallback(requestId);
+      } else {
+        window.clearTimeout(requestId);
+      }
     };
   }, [isOpen]);
 
@@ -82,7 +110,7 @@ export default function ProductsOverlay({ isOpen, onClose }) {
     event.preventDefault();
   }
 
-  const previewProducts = (shopifyProducts.length ? shopifyProducts : productsPreview).slice(0, 3);
+  const previewProducts = (shopifyProducts.length ? shopifyProducts : productsPreview).slice(0, 5);
 
   return (
     <AnimatePresence>
