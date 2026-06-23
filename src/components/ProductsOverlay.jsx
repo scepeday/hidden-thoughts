@@ -11,9 +11,9 @@ let hasRequestedShopifyProducts = false;
 export default function ProductsOverlay({ isOpen, onClose }) {
   const closeButtonRef = useRef(null);
   const shouldReduceMotion = useReducedMotion();
-  const [shopifyProducts, setShopifyProducts] = useState([]);
+  const [shopifyProducts, setShopifyProducts] = useState(() => cachedShopifyProducts ?? []);
   const [isLoadingProducts, setIsLoadingProducts] = useState(false);
-  const [productsError, setProductsError] = useState("");
+  const [productsError, setProductsError] = useState(() => cachedProductsError);
 
   useEffect(() => {
     if (!isOpen) {
@@ -43,12 +43,10 @@ export default function ProductsOverlay({ isOpen, onClose }) {
     }
 
     if (cachedShopifyProducts) {
-      setShopifyProducts(cachedShopifyProducts);
       return undefined;
     }
 
     if (hasRequestedShopifyProducts) {
-      setProductsError(cachedProductsError);
       return undefined;
     }
 

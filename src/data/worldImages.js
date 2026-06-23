@@ -35,7 +35,11 @@ function getSizeBand(index) {
 }
 
 function buildImageItem([path, src], index) {
-  const id = path.split("/").pop()?.replace(/\.[^.]+$/, "") ?? `world-image-${index + 1}`;
+  const id =
+    path
+      .split("/")
+      .pop()
+      ?.replace(/\.[^.]+$/, "") ?? `world-image-${index + 1}`;
   const sizeBand = getSizeBand(index);
   const widthByBand = {
     small: seededRange(index * 5.7 + 1, 1.35, 2.35),

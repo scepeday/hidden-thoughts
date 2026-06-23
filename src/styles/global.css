@@ -2,7 +2,12 @@
   color: #f1eee7;
   background: #030303;
   font-family:
-    Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    Inter,
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
     sans-serif;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -172,9 +177,7 @@ a {
   min-height: 38px;
   border: 1px solid rgb(241 238 231 / 0.24);
   border-radius: 0;
-  background:
-    linear-gradient(rgb(255 255 255 / 0.04), transparent),
-    rgb(3 3 3 / 0.78);
+  background: linear-gradient(rgb(255 255 255 / 0.04), transparent), rgb(3 3 3 / 0.78);
   color: rgb(241 238 231 / 0.82);
   cursor: pointer;
   font-size: 0.68rem;
@@ -220,9 +223,7 @@ a {
   min-height: 36px;
   border: 1px solid rgb(241 238 231 / 0.2);
   border-radius: 0;
-  background:
-    linear-gradient(rgb(255 255 255 / 0.03), transparent),
-    rgb(3 3 3 / 0.78);
+  background: linear-gradient(rgb(255 255 255 / 0.03), transparent), rgb(3 3 3 / 0.78);
   box-shadow: 0 10px 32px rgb(0 0 0 / 0.42);
   color: rgb(241 238 231 / 0.78);
   cursor: pointer;
@@ -267,9 +268,7 @@ a {
   width: min(170px, calc(100vw - 40px));
   padding: 12px;
   border: 1px solid rgb(241 238 231 / 0.16);
-  background:
-    linear-gradient(rgb(255 255 255 / 0.035), transparent),
-    rgb(3 3 3 / 0.9);
+  background: linear-gradient(rgb(255 255 255 / 0.035), transparent), rgb(3 3 3 / 0.9);
   box-shadow: 0 18px 52px rgb(0 0 0 / 0.46);
 }
 
@@ -389,14 +388,12 @@ h2 {
   background:
     radial-gradient(circle at 72% 24%, rgb(255 255 255 / 0.08), transparent 22rem),
     radial-gradient(circle at 18% 72%, rgb(255 255 255 / 0.055), transparent 20rem),
-    linear-gradient(160deg, rgb(255 255 255 / 0.04), transparent 46%),
-    #030303;
+    linear-gradient(160deg, rgb(255 255 255 / 0.04), transparent 46%), #030303;
 }
 
 .world-section {
   outline: none;
-  transition:
-    opacity 0.24s ease;
+  transition: opacity 0.24s ease;
 }
 
 .world-section--blurred {
@@ -560,7 +557,9 @@ h2 {
   background:
     url("../assets/web/textures/noise.png") repeat,
     radial-gradient(circle at 50% 36%, rgb(255 255 255 / 0.06), transparent 28rem);
-  background-size: 240px 240px, cover;
+  background-size:
+    240px 240px,
+    cover;
   opacity: 0.09;
   content: "";
 }
@@ -574,9 +573,7 @@ h2 {
   overscroll-behavior: none;
   padding: clamp(18px, 3vw, 42px);
   border: 1px solid rgb(241 238 231 / 0.16);
-  background:
-    linear-gradient(135deg, rgb(255 255 255 / 0.055), transparent 58%),
-    rgb(3 3 3 / 0.88);
+  background: linear-gradient(135deg, rgb(255 255 255 / 0.055), transparent 58%), rgb(3 3 3 / 0.88);
   box-shadow: 0 28px 90px rgb(0 0 0 / 0.68);
 }
 
@@ -630,8 +627,7 @@ h2 {
   overflow: hidden;
   border: 1px solid rgb(241 238 231 / 0.14);
   background:
-    linear-gradient(135deg, rgb(255 255 255 / 0.04), transparent 58%),
-    rgb(241 238 231 / 0.018);
+    linear-gradient(135deg, rgb(255 255 255 / 0.04), transparent 58%), rgb(241 238 231 / 0.018);
   color: inherit;
   text-decoration: none;
 }
@@ -836,7 +832,6 @@ h2 {
   .product-preview-card p {
     font-size: 0.62rem;
   }
-
 }
 
 @media (prefers-reduced-motion: reduce) {

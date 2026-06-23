@@ -16,6 +16,7 @@ export default function EntryGate({ onEnter }) {
       role="dialog"
       aria-modal="true"
       aria-labelledby="entry-gate-title"
+      aria-describedby="entry-gate-copy"
       initial={shouldReduceMotion ? false : { opacity: 1 }}
       exit={shouldReduceMotion ? undefined : { opacity: 0 }}
       transition={{ duration: 0.7, ease: cinematicEase }}
@@ -25,8 +26,10 @@ export default function EntryGate({ onEnter }) {
         <p id="entry-gate-title" className="entry-gate__title">
           Hidden Thoughts
         </p>
-        <p className="entry-gate__copy">Sound on. Enter the world when you are ready.</p>
-        <button type="button" className="entry-gate__button" onClick={handleEnter}>
+        <p id="entry-gate-copy" className="entry-gate__copy">
+          Sound on. Enter the world when you are ready.
+        </p>
+        <button type="button" className="entry-gate__button" onClick={handleEnter} autoFocus>
           Enter
         </button>
       </div>

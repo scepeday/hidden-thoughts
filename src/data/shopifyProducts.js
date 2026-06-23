@@ -50,9 +50,7 @@ export async function fetchShopifyProductPreviews(limit = 4) {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      ...(storefrontToken
-        ? { "X-Shopify-Storefront-Access-Token": storefrontToken }
-        : {}),
+      ...(storefrontToken ? { "X-Shopify-Storefront-Access-Token": storefrontToken } : {}),
     },
     body: JSON.stringify({
       query: PRODUCT_PREVIEW_QUERY,

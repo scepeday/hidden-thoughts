@@ -1,0 +1,16 @@
+dist
+node_modules
+coverage
+.env
+.env.local
+.env.*.local
+*.log
+*.mov
+*.mp3
+*.png
+*.jpg
+*.jpeg
+*.webp
+*.avif
+*.svg
+package-lock.json

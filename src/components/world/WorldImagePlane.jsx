@@ -85,9 +85,8 @@ export default function WorldImagePlane({
         runtimeRef.current.fade = 0;
 
         const image = textureEntry.texture.image;
-        runtimeRef.current.aspectRatio = image?.width && image?.height
-          ? image.width / image.height
-          : selectedImage.aspectRatio;
+        runtimeRef.current.aspectRatio =
+          image?.width && image?.height ? image.width / image.height : selectedImage.aspectRatio;
       }
     }
 

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 
 function configurePhotoTexture(texture, maxAnisotropy) {
@@ -12,12 +12,8 @@ function configurePhotoTexture(texture, maxAnisotropy) {
 
 export function useTextureCache({ initialSources = [], maxAnisotropy = 1 } = {}) {
   const cacheRef = useRef(new Map());
-  const loaderRef = useRef(null);
+  const loader = useMemo(() => new THREE.TextureLoader(), []);
   const [loadedCount, setLoadedCount] = useState(0);
-
-  if (!loaderRef.current) {
-    loaderRef.current = new THREE.TextureLoader();
-  }
 
   const requestTexture = useCallback(
     (src) => {
@@ -39,7 +35,7 @@ export function useTextureCache({ initialSources = [], maxAnisotropy = 1 } = {})
 
       cacheRef.current.set(src, entry);
 
-      loaderRef.current.load(
+      loader.load(
         src,
         (texture) => {
           configurePhotoTexture(texture, maxAnisotropy);
@@ -55,7 +51,7 @@ export function useTextureCache({ initialSources = [], maxAnisotropy = 1 } = {})
 
       return entry;
     },
-    [maxAnisotropy],
+    [loader, maxAnisotropy],
   );
 
   useEffect(() => {

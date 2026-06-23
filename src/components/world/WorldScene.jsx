@@ -41,8 +41,9 @@ export default function WorldScene({
     const parallaxX = shouldReduceMotion ? 0 : navigation.pointerX * 0.22;
     const parallaxY = shouldReduceMotion ? 0 : navigation.pointerY * 0.16;
     const idleDelayMs = 2500;
-    const idleTravelSpeed = shouldReduceMotion ? 0.12 : 0.42;
-    const hasIdleControl = performance.now() - navigation.lastInteractionTime > idleDelayMs;
+    const idleTravelSpeed = 0.42;
+    const hasIdleControl =
+      !shouldReduceMotion && performance.now() - navigation.lastInteractionTime > idleDelayMs;
 
     navigation.targetCameraX += navigation.velocityX * clampedDelta * 0.18;
     navigation.targetCameraY += navigation.velocityY * clampedDelta * 0.18;

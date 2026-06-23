@@ -11,11 +11,12 @@ export default function InteractiveWorldSection({ isBlurred = false }) {
   const sectionRef = useRef(null);
   const shouldReduceMotion = useReducedMotion();
   const isInView = useInView(sectionRef, { amount: 0.08 });
-  const { cameraLimits, frameRef, isDragging, navigationRef, pointerHandlers } =
-    useWorldNavigation({
+  const { cameraLimits, frameRef, isDragging, navigationRef, pointerHandlers } = useWorldNavigation(
+    {
       disabled: isBlurred,
       shouldReduceMotion,
-    });
+    },
+  );
 
   return (
     <motion.section

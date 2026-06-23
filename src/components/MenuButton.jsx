@@ -3,10 +3,7 @@ import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { navigationItems } from "../data/navigation.js";
 import { menuPanel } from "../styles/animations.js";
 
-export default function MenuButton({
-  onReturnToWorld = () => {},
-  onOpenProducts = () => {},
-}) {
+export default function MenuButton({ onReturnToWorld = () => {}, onOpenProducts = () => {} }) {
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef(null);
   const shouldReduceMotion = useReducedMotion();

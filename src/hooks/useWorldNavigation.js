@@ -48,9 +48,13 @@ export function useWorldNavigation({ disabled = false, shouldReduceMotion = fals
     velocityZ: 0,
     pointerX: 0,
     pointerY: 0,
-    lastInteractionTime: performance.now(),
+    lastInteractionTime: 0,
   });
   const [isDragging, setIsDragging] = useState(false);
+
+  useEffect(() => {
+    navigationRef.current.lastInteractionTime = performance.now();
+  }, []);
 
   useEffect(() => {
     const frame = frameRef.current;
